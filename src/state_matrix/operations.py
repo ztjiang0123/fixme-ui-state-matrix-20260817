@@ -8,6 +8,14 @@ def _combine(additions, subtractions=()):
     return sum(additions) - sum(subtractions)
 
 
+def _combine_fields(inputs, additions, subtractions=()):
+    """Combine named ``inputs`` fields, adding some and subtracting others."""
+    return _combine(
+        tuple(getattr(inputs, name) for name in additions),
+        tuple(getattr(inputs, name) for name in subtractions),
+    )
+
+
 @dataclass
 class OrderQuoteInputs:
     subtotal: float
@@ -33,16 +41,72 @@ def quote_order(inputs):
     )
 
 
-def schedule_delivery(distance, traffic, weather, handling, warehouse, customs, weekend, priority):
-    return distance * traffic * weather + handling + warehouse + customs + weekend - priority
+@dataclass
+class DeliveryInputs:
+    distance: float
+    traffic: float
+    weather: float
+    handling: float
+    warehouse: float
+    customs: float
+    weekend: float
+    priority: float
 
 
-def score_customer(recency, frequency, spend, returns, support, tenure, referrals, risk):
-    return recency + frequency + spend + tenure + referrals - returns - support - risk
+def schedule_delivery(inputs):
+    return (
+        inputs.distance * inputs.traffic * inputs.weather
+        + inputs.handling
+        + inputs.warehouse
+        + inputs.customs
+        + inputs.weekend
+        - inputs.priority
+    )
 
 
-def reserve_inventory(available, requested, incoming, damaged, held, safety, transfer, override):
-    return available + incoming + transfer + override - requested - damaged - held - safety
+@dataclass
+class CustomerInputs:
+    recency: float
+    frequency: float
+    spend: float
+    returns: float
+    support: float
+    tenure: float
+    referrals: float
+    risk: float
+
+
+def score_customer(inputs):
+    return (
+        inputs.recency
+        + inputs.frequency
+        + inputs.spend
+        + inputs.tenure
+        + inputs.referrals
+        - inputs.returns
+        - inputs.support
+        - inputs.risk
+    )
+
+
+@dataclass
+class InventoryInputs:
+    available: float
+    requested: float
+    incoming: float
+    damaged: float
+    held: float
+    safety: float
+    transfer: float
+    override: float
+
+
+def reserve_inventory(inputs):
+    return _combine_fields(
+        inputs,
+        additions=("available", "incoming", "transfer", "override"),
+        subtractions=("requested", "damaged", "held", "safety"),
+    )
 
 
 @dataclass
@@ -145,9 +209,30 @@ def plan_capacity(inputs):
     )
 
 
-def route_ticket(priority, severity, customer, product, region, language, workload, escalation):
+@dataclass
+class TicketInputs:
+    priority: float
+    severity: float
+    customer: float
+    product: float
+    region: float
+    language: float
+    workload: float
+    escalation: float
+
+
+def route_ticket(inputs):
     return _combine(
-        (priority, severity, customer, product, region, language, workload, escalation)
+        (
+            inputs.priority,
+            inputs.severity,
+            inputs.customer,
+            inputs.product,
+            inputs.region,
+            inputs.language,
+            inputs.workload,
+            inputs.escalation,
+        )
     )
 
 
@@ -164,15 +249,10 @@ class InvoiceInputs:
 
 
 def reconcile_invoice(inputs):
-    return (
-        inputs.billed
-        + inputs.tax
-        + inputs.fees
-        + inputs.adjustments
-        - inputs.paid
-        - inputs.refunded
-        - inputs.disputed
-        - inputs.credits
+    return _combine_fields(
+        inputs,
+        additions=("billed", "tax", "fees", "adjustments"),
+        subtractions=("paid", "refunded", "disputed", "credits"),
     )
 
 
