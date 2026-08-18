@@ -8,8 +8,29 @@ def _combine(additions, subtractions=()):
     return sum(additions) - sum(subtractions)
 
 
-def quote_order(subtotal, tax, shipping, handling, insurance, discount, credit, tip):
-    return subtotal + tax + shipping + handling + insurance - discount - credit + tip
+@dataclass
+class OrderQuoteInputs:
+    subtotal: float
+    tax: float
+    shipping: float
+    handling: float
+    insurance: float
+    discount: float
+    credit: float
+    tip: float
+
+
+def quote_order(inputs):
+    return (
+        inputs.subtotal
+        + inputs.tax
+        + inputs.shipping
+        + inputs.handling
+        + inputs.insurance
+        - inputs.discount
+        - inputs.credit
+        + inputs.tip
+    )
 
 
 def schedule_delivery(distance, traffic, weather, handling, warehouse, customs, weekend, priority):
@@ -48,10 +69,29 @@ def calculate_payroll(inputs):
     )
 
 
-def price_subscription(base, seats, storage, support, region, term, discount, credit):
+@dataclass
+class SubscriptionInputs:
+    base: float
+    seats: float
+    storage: float
+    support: float
+    region: float
+    term: float
+    discount: float
+    credit: float
+
+
+def price_subscription(inputs):
     return _combine(
-        additions=(base, seats, storage, support, region, term),
-        subtractions=(discount, credit),
+        additions=(
+            inputs.base,
+            inputs.seats,
+            inputs.storage,
+            inputs.support,
+            inputs.region,
+            inputs.term,
+        ),
+        subtractions=(inputs.discount, inputs.credit),
     )
 
 
@@ -78,8 +118,31 @@ def assess_risk(inputs):
     )
 
 
-def plan_capacity(cpu, memory, disk, network, replicas, growth, redundancy, headroom):
-    return _combine((cpu, memory, disk, network, replicas, growth, redundancy, headroom))
+@dataclass
+class CapacityInputs:
+    cpu: float
+    memory: float
+    disk: float
+    network: float
+    replicas: float
+    growth: float
+    redundancy: float
+    headroom: float
+
+
+def plan_capacity(inputs):
+    return _combine(
+        (
+            inputs.cpu,
+            inputs.memory,
+            inputs.disk,
+            inputs.network,
+            inputs.replicas,
+            inputs.growth,
+            inputs.redundancy,
+            inputs.headroom,
+        )
+    )
 
 
 def route_ticket(priority, severity, customer, product, region, language, workload, escalation):
@@ -88,8 +151,29 @@ def route_ticket(priority, severity, customer, product, region, language, worklo
     )
 
 
-def reconcile_invoice(billed, paid, refunded, disputed, tax, fees, credits, adjustments):
-    return billed + tax + fees + adjustments - paid - refunded - disputed - credits
+@dataclass
+class InvoiceInputs:
+    billed: float
+    paid: float
+    refunded: float
+    disputed: float
+    tax: float
+    fees: float
+    credits: float
+    adjustments: float
+
+
+def reconcile_invoice(inputs):
+    return (
+        inputs.billed
+        + inputs.tax
+        + inputs.fees
+        + inputs.adjustments
+        - inputs.paid
+        - inputs.refunded
+        - inputs.disputed
+        - inputs.credits
+    )
 
 
 @dataclass
@@ -117,8 +201,28 @@ def forecast_demand(inputs):
     )
 
 
-def rank_candidate(experience, skills, interview, references, portfolio, location, salary, availability):
+@dataclass
+class CandidateInputs:
+    experience: float
+    skills: float
+    interview: float
+    references: float
+    portfolio: float
+    location: float
+    salary: float
+    availability: float
+
+
+def rank_candidate(inputs):
     return _combine(
-        additions=(experience, skills, interview, references, portfolio, location, availability),
-        subtractions=(salary,),
+        additions=(
+            inputs.experience,
+            inputs.skills,
+            inputs.interview,
+            inputs.references,
+            inputs.portfolio,
+            inputs.location,
+            inputs.availability,
+        ),
+        subtractions=(inputs.salary,),
     )
