@@ -1,5 +1,25 @@
 """Independent operations that deliberately seed long-parameter signals."""
 
+from dataclasses import dataclass
+
+
+@dataclass
+class SubscriptionPricing:
+    """Inputs required to price a subscription.
+
+    Groups the charge components and the reductions that travel together
+    through :func:`price_subscription`.
+    """
+
+    base: float
+    seats: float
+    storage: float
+    support: float
+    region: float
+    term: float
+    discount: float
+    credit: float
+
 
 def quote_order(subtotal, tax, shipping, handling, insurance, discount, credit, tip):
     return subtotal + tax + shipping + handling + insurance - discount - credit + tip
@@ -21,8 +41,17 @@ def calculate_payroll(hours, rate, overtime, bonus, commission, tax, benefits, d
     return hours * rate + overtime + bonus + commission - tax - benefits - deductions
 
 
-def price_subscription(base, seats, storage, support, region, term, discount, credit):
-    return base + seats + storage + support + region + term - discount - credit
+def price_subscription(pricing):
+    return (
+        pricing.base
+        + pricing.seats
+        + pricing.storage
+        + pricing.support
+        + pricing.region
+        + pricing.term
+        - pricing.discount
+        - pricing.credit
+    )
 
 
 def assess_risk(exposure, probability, impact, controls, history, volatility, liquidity, concentration):
