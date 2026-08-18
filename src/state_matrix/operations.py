@@ -8,6 +8,14 @@ def _combine(additions, subtractions=()):
     return sum(additions) - sum(subtractions)
 
 
+def _combine_fields(inputs, additions, subtractions=()):
+    """Combine named ``inputs`` fields, adding some and subtracting others."""
+    return _combine(
+        tuple(getattr(inputs, name) for name in additions),
+        tuple(getattr(inputs, name) for name in subtractions),
+    )
+
+
 @dataclass
 class OrderQuoteInputs:
     subtotal: float
@@ -94,15 +102,10 @@ class InventoryInputs:
 
 
 def reserve_inventory(inputs):
-    return (
-        inputs.available
-        + inputs.incoming
-        + inputs.transfer
-        + inputs.override
-        - inputs.requested
-        - inputs.damaged
-        - inputs.held
-        - inputs.safety
+    return _combine_fields(
+        inputs,
+        additions=("available", "incoming", "transfer", "override"),
+        subtractions=("requested", "damaged", "held", "safety"),
     )
 
 
@@ -246,15 +249,10 @@ class InvoiceInputs:
 
 
 def reconcile_invoice(inputs):
-    return (
-        inputs.billed
-        + inputs.tax
-        + inputs.fees
-        + inputs.adjustments
-        - inputs.paid
-        - inputs.refunded
-        - inputs.disputed
-        - inputs.credits
+    return _combine_fields(
+        inputs,
+        additions=("billed", "tax", "fees", "adjustments"),
+        subtractions=("paid", "refunded", "disputed", "credits"),
     )
 
 
